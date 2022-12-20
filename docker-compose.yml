@@ -1,0 +1,57 @@
+version: '3'
+services:
+  mysql_master:
+    image: mysql:5.7
+    platform: linux/amd64
+    env_file:
+      - ./cluster/master/mysql_master.env
+    container_name: "mysql_master"
+    restart: "no"
+    ports:
+      - 4406:3306
+    volumes:
+      - ./cluster/master/conf/mysql.conf.cnf:/etc/mysql/conf.d/mysql.conf.cnf
+      - ./cluster/master/data:/var/lib/mysql
+      - ./cluster/master/logs:/var/log/mysql
+    networks:
+      - overlay
+
+  mysql_slave:
+    image: mysql:5.7
+    platform: linux/amd64
+    env_file:
+      - ./cluster/slave/mysql_slave.env
+    container_name: "mysql_slave"
+    restart: "no"
+    ports:
+      - 5506:3306
+    depends_on:
+      - mysql_master
+    volumes:
+      - ./cluster/slave/conf/mysql.conf.cnf:/etc/mysql/conf.d/mysql.conf.cnf
+      - ./cluster/slave/data:/var/lib/mysql
+      - ./cluster/slave/logs:/var/log/mysql
+    networks:
+      - overlay
+
+  mysql_slave2:
+    image: mysql:5.7
+    platform: linux/amd64
+    env_file:
+      - ./cluster/slave2/mysql_slave.env
+    container_name: "mysql_slave2"
+    restart: "no"
+    ports:
+      - 5507:3306
+    depends_on:
+      - mysql_master
+    volumes:
+      - ./cluster/slave2/conf/mysql.conf.cnf:/etc/mysql/conf.d/mysql.conf.cnf
+      - ./cluster/slave2/data:/var/lib/mysql
+      - ./cluster/slave2/logs:/var/log/mysql
+    networks:
+      - overlay
+
+networks:
+  overlay:
+
